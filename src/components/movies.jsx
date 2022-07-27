@@ -42,12 +42,12 @@ class Movies extends Component {
 
   handlePageChange = (page)=>{
     // console.log(page);
-    this.setState({currentPage:page});
+    this.setState({currentPage: page});
   };
 
   handleGenreSelect = (genre)=>{
     // console.log(genre);
-    this.setState({ selectedGenre: genre, currentPage: 1 });
+    this.setState({ selectedGenre: genre, currentPage: 1 }); //selectedGenre new property store genre which select
   };
 
   handleSort = (sortColumn)=>{

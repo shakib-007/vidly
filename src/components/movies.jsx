@@ -1,10 +1,13 @@
 import React, { Component } from "react";
-import { getMovies } from "./../services/fakeMovieService";
+import { deleteMovie, getMovies } from "./../services/movieService";
+// import { deleteMovie, getMovies } from "./../services/fakeMovieService";
 // import Like from "./common/like";
+import { toast } from "react-toastify";
 import ListGroup from "./common/listGroup";
 import Pagination from "./common/pagination";
 import { paginate } from './../utils/paginate';
-import { getGenres } from "../services/fakeGenreService";
+// import { getGenres } from "../services/fakeGenreService";
+import { getGenres } from "../services/genreService";
 import MoviesTable from "./moviesTable";
 import SearchBox from "./common/searchBox";
 import _ from 'lodash';
@@ -22,16 +25,35 @@ class Movies extends Component {
     sortColumn: {path: 'title', order: 'asc'}
   };
 
-  componentDidMount(){
-    const genres = [{_id:"", name : 'All Genres' }, ...getGenres()];
-    this.setState({movies: getMovies(), genres: genres});
+  async componentDidMount(){
+    
+    // const genres = [{_id:"", name : 'All Genres' }, ...getGenres()]; //for fakeGenreService not using database
+    const { data } = await getGenres();
+    const genres = [{_id:"", name : 'All Genres' }, ...data];
+    const { data: movies } = await getMovies();
+    // this.setState({movies: getMovies(), genres: genres}); //for fakeMovieService not using database
+    this.setState({movies, genres: genres});
+    
     // this.setState({movies: getMovies(), genres: getGenres()});
   }
-  handleDelete = (movie) => {
+  handleDelete =async (movie) => {
+    const originalMovies = this.state.movies;
     // console.log(movie);
     const movies = this.state.movies.filter((m) => m._id !== movie._id);
     // this.setState({movies : movies}); //setstate method update state object
     this.setState({ movies }); //if key and value same we can write this way
+    // await deleteMovie(movie._id);
+
+    try{
+        await deleteMovie(movie._id);
+    }
+    catch(ex){
+        if(ex.response && ex.response.status === 404){
+            toast.error("already deleted");
+        }
+        this.setState({ movies: originalMovies });
+    }
+    
   };
 
   handleLike = (movie)=>{
